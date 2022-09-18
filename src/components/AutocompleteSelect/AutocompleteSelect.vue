@@ -18,7 +18,7 @@
           @click='showList' />
       </div>
     </div>
-    <ul v-if='listShow'
+    <ul v-if='listShow && listLength'
         class='autocomplete-select__list'>
       <li
         ref='item'
