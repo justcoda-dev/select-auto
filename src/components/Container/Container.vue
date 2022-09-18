@@ -1,16 +1,16 @@
 <template>
-  <div class="container">
-    <slot/>
+  <div class='container'>
+    <slot />
   </div>
 </template>
 
 <script>
 export default {
-  name: "Container"
-}
+  name: 'Container',
+};
 </script>
 
-<style lang="scss" scoped>
+<style lang='scss' scoped>
 .container {
   margin: 100px;
 }

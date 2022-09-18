@@ -1,33 +1,36 @@
 <template>
-  <div class="autocomplete-select">
-    <div class="autocomplete-select__input-wrapper">
+  <div class='autocomplete-select'>
+    <div class='autocomplete-select__input-wrapper'>
       <input
-          :placeholder="placeholder || 'select'"
-          v-model="inputValue"
-          class="autocomplete-select__input"
-          type="text"
-          :disabled="disabledInput"
-          autocomplete="off"
-          @keyup.up="keyUp"
-          @keyup.down="keyDown"
+        :placeholder="placeholder || 'select'"
+        v-model='inputValue'
+        class='autocomplete-select__input'
+        type='text'
+        :disabled='disabledInput'
       >
-      <div class="autocomplete-select__buttons-wrapper">
+      <div class='autocomplete-select__buttons-wrapper'>
         <button
-            v-if="selectedItem"
-            class="button autocomplete-select__cancel"
-            @click="cancelSelected"/>
+          v-if='selectedItem'
+          class='button autocomplete-select__cancel'
+          @click='cancelSelected' />
         <button
-            class="button autocomplete-select__open"
-            @click="showList"/>
+          class='button autocomplete-select__open'
+          @click='showList' />
       </div>
     </div>
-    <ul v-if="listShow"
-        class="autocomplete-select__list">
+    <ul v-if='listShow'
+        class='autocomplete-select__list'>
       <li
-          v-for="item of listOfSimilar"
-          :key="item.id"
-          class="autocomplete-select__list-item"
-          @click="selectItem(item)"
+        ref='item'
+        :tabindex='tabindex'
+        v-for='(item, index) of listOfSimilar'
+        @keyup.up='onKeyUp'
+        @keyup.down='onKeyDown'
+        @keyup.enter='onKeyEnter'
+        :key='item.id'
+        class='autocomplete-select__list-item'
+        :class='{selected:hoverItemIndex === index}'
+        @click='selectItem(item)'
       >
         {{ item.name }}
       </li>
@@ -36,82 +39,96 @@
 </template>
 
 <script>
-import {includeFilter} from "@/functions/includeFilter";
-// import {debounce} from "@/functions/debounce";
+import { filterArrByWord } from '@/functions/includeFilter';
 
 export default {
-  name: "AutocompleteSelect",
+  name: 'AutocompleteSelect',
   props: {
     list: {
       type: Array,
-      require: true
-    }
+      require: true,
+    },
   },
   data: () => {
     return {
-      selectedItem: "",
+      selectedItem: '',
       listShow: false,
-      selectedItemId: "",
+      selectedItemId: '',
       disabledInput: false,
-      placeholder: "",
-      timeoutId: 300,
-      debouncedInputValue: ''
-    }
+      placeholder: '',
+      timeoutId: '',
+      debouncedInputValue: '',
+      hoverItemIndex: 0,
+      tabindex: '0',
+      searchOptionsCount: 10,
+    };
   },
   watch: {
     inputValue() {
       this.listShow = !!this.inputValue.length && !this.selectedItem;
-    }
+    },
   },
   computed: {
     inputValue: {
       get() {
-        return this.debouncedInputValue
+        return this.debouncedInputValue;
       },
       set(value) {
         if (this.timeoutId) {
-          clearTimeout(this.timeoutId)
+          clearTimeout(this.timeoutId);
         }
         this.timeoutId = setTimeout(() => {
-          this.debouncedInputValue = value
-        }, 300)
-      }
+          this.debouncedInputValue = value;
+        }, 300);
+      },
+    },
+    listLength() {
+      return this.list.length;
     },
     listOfSimilar() {
-      return this.inputValue.length ? includeFilter(this.inputValue, this.list) : this.list
+      return this.inputValue.length ? filterArrByWord(this.inputValue, this.list, this.searchOptionsCount) : this.list;
     },
   },
   methods: {
     selectItem(item) {
-      this.listShow = false
-      this.selectedItem = item.name
-      this.inputValue = item.name
-      this.disabledInput = true
+      this.listShow = false;
+      this.selectedItem = item.name;
+      this.inputValue = item.name;
+      this.disabledInput = true;
     },
     showList() {
-      this.listShow = !this.listShow
+      this.listShow = !this.listShow;
+      this.hoverItemIndex = 0;
+      if (this.listLength && this.listShow) {
+        this.$nextTick(() => {
+          this.$refs['item'][0].focus();
+        });
+      }
     },
     cancelSelected() {
-      this.inputValue = ""
-      this.listShow = false
-      this.selectedItem = ""
-      this.disabledInput = false
+      this.inputValue = '';
+      this.listShow = false;
+      this.selectedItem = '';
+      this.disabledInput = false;
     },
-    keyUp() {
-      console.log("+1")
+    onKeyUp() {
+      this.hoverItemIndex = this.hoverItemIndex > 0 ? this.hoverItemIndex - 1 : 0;
     },
-    keyDown() {
-      console.log("-1")
+    onKeyDown() {
+      this.hoverItemIndex = this.hoverItemIndex < this.listLength - 1 ? this.hoverItemIndex + 1 : this.hoverItemIndex;
+    },
+    onKeyEnter() {
+      this.selectItem(this.list[this.hoverItemIndex]);
     },
   },
-}
+};
 </script>
 
-<style lang="scss" scoped>
+<style lang='scss' scoped>
 
 .autocomplete-select {
   color: #60666d;
-  //
+  // global styles
   .button {
     background: none;
     border: none;
@@ -120,7 +137,12 @@ export default {
     height: 20px;
   }
 
-  //
+  .selected {
+    border: 2px solid #60666d;;
+  }
+
+  // /global styles
+
   &__input-wrapper {
     display: flex;
     min-width: 170px;
@@ -210,6 +232,10 @@ export default {
 
     &:hover {
       background: #f1f3f6;
+    }
+
+    &:focus {
+      outline: none;
     }
   }
 }
