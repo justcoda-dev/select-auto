@@ -239,14 +239,4 @@ export default {
     }
   }
 }
-
-@keyframes openAnimation {
-  0% {
-    transform: rotate(0);
-  }
-  100% {
-    transform: rotate(180deg);
-  }
-
-}
 </style>
