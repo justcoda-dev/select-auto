@@ -238,4 +238,8 @@ export default {
     }
   }
 }
+<<<<<<< HEAD
 </style>
+=======
+</style>
+>>>>>>> f5c25dee3fe6139f10e837bf7b22c3532475ed75
