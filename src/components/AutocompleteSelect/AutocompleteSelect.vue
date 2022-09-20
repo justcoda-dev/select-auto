@@ -60,7 +60,6 @@ export default {
       debouncedInputValue: '',
       hoverItemIndex: 0,
       tabindex: '0',
-      searchOptionsCount: 10,
     };
   },
   watch: {
@@ -86,7 +85,7 @@ export default {
       return this.list.length;
     },
     listOfSimilar() {
-      return this.inputValue.length ? filterArrByWord(this.inputValue, this.list, this.searchOptionsCount) : this.list;
+      return this.inputValue.length ? filterArrByWord(this.inputValue, this.list) : this.list;
     },
   },
   methods: {
@@ -238,15 +237,5 @@ export default {
       outline: none;
     }
   }
-}
-
-@keyframes openAnimation {
-  0% {
-    transform: rotate(0);
-  }
-  100% {
-    transform: rotate(180deg);
-  }
-
 }
 </style>
